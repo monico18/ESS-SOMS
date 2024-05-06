@@ -1,85 +1,66 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { useToast } from "vue-toastification"
+
+
+const toast = useToast()
+const router = useRouter();
+
+
+const clickMenuOption = () => {
+  const domReference = document.getElementById('buttonSidebarExpandId');
+  if (domReference && window.getComputedStyle(domReference).display !== "none") {
+    domReference.click();
+  }
+};
+
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+  <div>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top flex-md-nowrap shadow">
+      <div class="svg-container" style="margin-left: 0.8rem;">
+        <p>ola</p>
+      </div>
+    <div class="collapse navbar-collapse justify-content-start" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+            Dashboard
+        </li>
+      </ul>
     </div>
-  </header>
-
-  <RouterView />
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+            Sign In
+        </li>
+      </ul>
+    </div>
+</nav>
+    <main class="container">
+      <div class="content-wrapper">
+        <router-view></router-view>
+      </div>
+    </main>
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+@import "./assets/dashboard.css";
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.svg-container {
+  width: 200px; /* Adjust width as needed */
+  height: auto; /* Adjust height as needed */
 }
-
-nav {
+.navbar{
+  padding-top: 10px ;
+  padding-bottom: 10px;
   width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.nav-link.active {
+  background-color: rgba(76, 67, 67, 0);
 }
 </style>
