@@ -48,7 +48,7 @@ const save = async() => {
 }
 
 const cancel = () => {
-  if(userStore.user.type == 'admin'){
+  if(userStore.user && userStore.user.type == 'admin'){
     router.push({name: 'AdminDashboard'})
   }
   else{
@@ -87,10 +87,11 @@ onBeforeRouteLeave((to, from, next) => {
     <div class="center-container" style="margin-top: 112px;">
       <div class="p-card p-shadow-2 p-mb-4 p-border-rounded" style="width: 100%; max-width: 360px;">
         <div class="text-center p-mb-5">
-          <img src="../../assets/hashkittyNormal.svg" alt="Hashkitty SVG Image" height="200" class="p-mb-3">
+          <h3> SOMS </h3>
+          <h5>Smart Occupancy Management System</h5>
           <br>
-          <div class="text-3xl p-font-weight-bold p-mb-3">Create an Account</div>
-          <span v-if=" userStore.user.type == 'admin' " class="text-600">Already have an account?</span>
+          <div class="text-3x1 p-font-weight-bold p-mb-3">Create an Account</div>
+          <span v-if=" userStore.user && userStore.user.type == 'admin' " class="text-600">Already have an account?</span>
           <router-link :to="{ name: 'Login' }" :class="{ active: $route.name === 'Login' }" @click="clickMenuOption">
           <a href="#" class="p-font-weight-bold p-ml-2 p-text-blue p-cursor-pointer">Sign in</a>
           </router-link>

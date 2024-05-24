@@ -41,7 +41,8 @@ const clickMenuOption = () => {
   <div class="center-container" style="margin-top: 50px;">
     <div class="p-card p-shadow-2 p-mb-4 p-border-rounded" style="width: 100%; max-width: 360px;">
       <div class="text-center p-mb-5">
-        <img src="../../assets/hashkittyNormal.svg" alt="Hashkitty SVG Image" height="200" class="p-mb-3">
+        <h1> SOMS </h1>
+        <h2>Smart Occupancy Management System</h2>
         <br>
         <div class="text-3xl p-font-weight-bold p-mb-3">Welcome Back</div>
         <span class="text-600">Don't have an account?</span>
