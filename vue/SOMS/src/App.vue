@@ -21,7 +21,7 @@ const clickMenuOption = () => {
   <div>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top flex-md-nowrap shadow">
       <div class="svg-container" style="margin-left: 0.8rem;">
-        <p>ola</p>
+        <p>SOMS</p>
       </div>
     <div class="collapse navbar-collapse justify-content-start" id="navbarNav">
       <ul class="navbar-nav">
