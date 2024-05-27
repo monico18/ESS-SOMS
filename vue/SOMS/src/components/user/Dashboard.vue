@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import io from 'socket.io-client';
+
 
 const apiKey = 'c321147f32bb6d31e61b897e4d724a3e';
 const city = ref('Leiria');
@@ -7,6 +9,9 @@ const city = ref('Leiria');
 const weatherDescription = ref('');
 const temperature = ref('');
 const humidity = ref('');
+const free_spaces = ref(0);
+const photo = ref("");
+const showLiveFeed = ref(true);
 
 let intervalId = null;
 
@@ -51,9 +56,23 @@ onMounted(startFetching);
 onUnmounted(stopFetching);
 
 const videoUrl = ref('http://10.0.0.5:5000/video_feed');
+const socket = io('http://10.0.0.5:5000'); 
 
+socket.on('free_spaces', (data) => {
+  free_spaces.value = data.free_spaces
+  photo.value = 'data:image/jpeg;base64,' + data.image;
+});
+
+const showCurrentPhoto = () => {
+  showLiveFeed.value = false;
+};
+
+const showLive = () => {
+  showLiveFeed.value = true;
+};
 </script>   
 <template>
+   <div>
     <br>
     <br>
     <div class="d-flex justify-content-center">
@@ -66,13 +85,22 @@ const videoUrl = ref('http://10.0.0.5:5000/video_feed');
       <h6>Humidity: {{ humidity }}%</h6>
     </div>
     <br>
-    <div class="d-flex justify-content-center">
+    <div class="weather-info">
       <h3>Live Feed</h3>
+      <h5>Free Spaces : {{ free_spaces }}</h5>
+      <button v-if="showLiveFeed" class="btn btn-secondary" @click="showCurrentPhoto">Show Current Photo</button>
+      <button v-if="!showLiveFeed" class="btn btn-secondary" @click="showLive">Show Live Feed</button>
     </div>
+    <br>
     <div class="d-flex justify-content-center">
-      <img :src="videoUrl" alt="Live Stream" class="live-stream">
+      <div v-if="showLiveFeed">
+        <img :src="videoUrl" alt="Live Stream" class="live-stream">
+      </div>
+      <div v-else>
+        <img :src="photo" alt="Current Photo" class="live-stream">
+      </div>
     </div>
-
+  </div>
 </template>
 <style>
 .form-select-bg-position {
