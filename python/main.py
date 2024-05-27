@@ -2,9 +2,12 @@ import cv2
 import pickle
 import numpy as np
 import logging
+from flask import Flask, Response
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+app = Flask(__name__)
 
 def load_shapes(file_path):
     logging.info(f"Loading shapes from {file_path}")
@@ -68,9 +71,9 @@ def display_free_spaces_count(img, free_spaces):
     cv2.putText(img, text, position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     logging.debug("Free spaces count display completed")
 
-def main():
-    logging.info("Starting main function")
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+def generate_frames():
+    logging.info("Starting video capture")
+    cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         logging.error("Error: Could not open video capture")
         return
@@ -78,9 +81,6 @@ def main():
     shapes = load_shapes('shapes3.pkl')
 
     while True:
-        if cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-
         success, img = cap.read()
         if not success:
             logging.error("Error: Could not read frame from video capture")
@@ -97,18 +97,19 @@ def main():
         free_spaces = count_free_spaces(shapes)
         display_free_spaces_count(img_with_all_shapes, free_spaces)
 
-        cv2.imshow("Image with all shapes", img_with_all_shapes)
-        cv2.imshow("ImageBlur", img_blur)
-        cv2.imshow("ImageThresh", img_threshold)
-        cv2.imshow("ImageMedian", img_median)
+        ret, buffer = cv2.imencode('.jpg', img_with_all_shapes)
+        frame = buffer.tobytes()
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            logging.info("Quitting program")
-            break
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
     cap.release()
     cv2.destroyAllWindows()
-    logging.info("Program terminated")
+    logging.info("Video capture ended")
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=5000)
