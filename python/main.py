@@ -3,11 +3,13 @@ import pickle
 import numpy as np
 import logging
 from flask import Flask, Response
+from flask_socketio import SocketIO, emit
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 def load_shapes(file_path):
     logging.info(f"Loading shapes from {file_path}")
@@ -95,8 +97,10 @@ def generate_frames():
         display_count_on_image(img_with_all_shapes, shapes)
 
         free_spaces = count_free_spaces(shapes)
+        if free_spaces != previous_free_spaces:
+            socketio.emit('free_spaces', {'free_spaces': free_spaces, 'image': frame})
         display_free_spaces_count(img_with_all_shapes, free_spaces)
-
+        previous_free_spaces = free_spaces
         ret, buffer = cv2.imencode('.jpg', img_with_all_shapes)
         frame = buffer.tobytes()
 
@@ -112,4 +116,5 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000)
