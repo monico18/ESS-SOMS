@@ -4,6 +4,7 @@ import numpy as np
 import logging
 from flask import Flask, Response
 from flask_socketio import SocketIO, emit
+import base64
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -81,7 +82,7 @@ def generate_frames():
         return
     
     shapes = load_shapes('shapes3.pkl')
-
+    previous_free_spaces = 0
     while True:
         success, img = cap.read()
         if not success:
@@ -97,8 +98,11 @@ def generate_frames():
         display_count_on_image(img_with_all_shapes, shapes)
 
         free_spaces = count_free_spaces(shapes)
+            
         if free_spaces != previous_free_spaces:
-            socketio.emit('free_spaces', {'free_spaces': free_spaces, 'image': frame})
+            ret, buffer = cv2.imencode('.jpg', img_with_all_shapes)
+            image_base64 = base64.b64encode(buffer).decode('utf-8')
+            socketio.emit('free_spaces', {'free_spaces': free_spaces, 'image': image_base64})
         display_free_spaces_count(img_with_all_shapes, free_spaces)
         previous_free_spaces = free_spaces
         ret, buffer = cv2.imencode('.jpg', img_with_all_shapes)
