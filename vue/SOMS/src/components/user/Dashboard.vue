@@ -55,8 +55,8 @@ const stopFetching = () => {
 onMounted(startFetching);
 onUnmounted(stopFetching);
 
-const videoUrl = ref('http://10.0.0.5:5000/video_feed');
-const socket = io('http://10.0.0.5:5000'); 
+const videoUrl = ref('http://10.0.0.6:5000/video_feed');
+const socket = io('http://10.0.0.6:5000'); 
 
 socket.on('free_spaces', (data) => {
   free_spaces.value = data.free_spaces

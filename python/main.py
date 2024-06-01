@@ -12,6 +12,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+videos = ['Video1.mp4', 'Video2.mp4', 'Video3.mp4', 'Video4.mp4', 'Video5.mp4']
+video_index = 0
+
 def load_shapes(file_path):
     logging.info(f"Loading shapes from {file_path}")
     with open(file_path, 'rb') as f:
@@ -115,9 +118,60 @@ def generate_frames():
     cv2.destroyAllWindows()
     logging.info("Video capture ended")
 
+def generate_video_frames():
+    global video_index
+    logging.info(f"Starting video processing for {videos[video_index]}")
+    cap = cv2.VideoCapture(f"./img/{videos[video_index]}")
+    shapes = load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl')
+    previous_free_spaces = 0
+    frame_counter = 0
+    while True:
+        ret, img = cap.read()
+        if not ret:
+            logging.info(f"Finished processing {videos[video_index]}")
+            video_index = (video_index + 1) % len(videos)
+            cap.release()
+            cap = cv2.VideoCapture(f"./img/{videos[video_index]}")
+            shapes = load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl')
+            continue
+
+        logging.debug("Processing video frame")
+        img_dilate, img_blur, img_threshold, img_median = preprocess_image(img)
+
+        img_with_all_shapes = img.copy()
+        count_nonzero_pixels(img_dilate, shapes)
+        draw_shapes(img_with_all_shapes, shapes)
+        display_count_on_image(img_with_all_shapes, shapes)
+
+        free_spaces = count_free_spaces(shapes)
+            
+        if free_spaces != previous_free_spaces:
+            ret, buffer = cv2.imencode('.jpg', img_with_all_shapes)
+            image_base64 = base64.b64encode(buffer).decode('utf-8')
+            socketio.emit('free_spaces', {'free_spaces': free_spaces, 'image': image_base64})
+        display_free_spaces_count(img_with_all_shapes, free_spaces)
+        previous_free_spaces = free_spaces
+        ret, buffer = cv2.imencode('.jpg', img_with_all_shapes)
+        frame = buffer.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        
+        frame_counter += 1
+        if frame_counter > 500000: 
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+    logging.info("Video processing ended")
+    
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/video_ipl')
+def videos_ipl():
+    return Response(generate_video_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
     #app.run(host='0.0.0.0', port=5000)

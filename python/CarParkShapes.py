@@ -9,6 +9,8 @@ click_counter = 0  # Counter for left mouse button clicks
 drawn_points = []  # List to store drawn points
 shapes = []  # List to store drawn shapes
 shape_counter = 0  # Counter to auto-assign shape numbers
+video_index = 0  # Current video index
+videos = ['Video1.mp4', 'Video2.mp4', 'Video3.mp4', 'Video4.mp4', 'Video5.mp4']
 
 # Load previously drawn shapes, if any
 def load_shapes(file_path):
@@ -17,8 +19,6 @@ def load_shapes(file_path):
             return pickle.load(f)
     except FileNotFoundError:
         return []
-
-shapes = load_shapes('shapes3.pkl')
 
 # Function to calculate the distance between two points
 def distance(point1, point2):
@@ -57,20 +57,39 @@ def connect_points(event, x, y, flags, param):
     elif event == cv2.EVENT_LBUTTONUP:
         drawing = False
 
+def switch_video(cap):
+    global video_index, shapes, shape_counter
+    with open(f'shapes_{videos[video_index].split(".")[0]}.pkl', 'wb') as f:
+        pickle.dump(shapes, f)
+    
+    video_index = (video_index + 1) % len(videos)
+    cap.release()
+    cap.open(f"./img/{videos[video_index]}")
+    
+    shapes = load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl')
+    shape_counter = len(shapes)
+    
+    cv2.waitKey(100)
+    
 # Main function
 def main():
     global img
 
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    cv2.namedWindow("Image")
+    cap = cv2.VideoCapture(f"./img/{videos[video_index]}")
+    shapes.extend(load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl'))
+    cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
     cv2.setMouseCallback("Image", connect_points)
 
     while True:
         ret, frame = cap.read()
         if not ret:
-            break
+            switch_video(cap)
+            continue
 
         img = frame.copy()
+        
+        height, width = frame.shape[:2]
+        cv2.resizeWindow("Image", width, height)
 
         for shape in shapes:
             points = shape['points']
@@ -84,9 +103,11 @@ def main():
 
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
+            with open(f'shapes_{videos[video_index].split(".")[0]}.pkl', 'wb') as f:
+                pickle.dump(shapes, f)
             break
         elif key == ord('s'):
-            with open('shapes3.pkl', 'wb') as f:
+            with open(f'shapes_{videos[video_index].split(".")[0]}.pkl', 'wb') as f:
                 pickle.dump(shapes, f)
 
     cap.release()

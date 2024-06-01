@@ -4,7 +4,7 @@ import pickle
 width, height = 86, 170
 
 try:
-    with open('CarParkPos', 'rb') as f:
+    with open('.\img\CarParkPos', 'rb') as f:
         posList = pickle.load(f)
 except:
     posList = []
@@ -24,7 +24,7 @@ def mouseDraw(events, x, y, flags, params):
 
 while True:
     # Import img
-    img = cv2.imread('CarParkingTest.jpg')
+    img = cv2.imread('.\img\CarParkingTest.jpg')
     img = cv2.resize(img, (1280, 720))
     #Draw Rectangle
     for pos in posList:
