@@ -9,11 +9,21 @@ const city = ref('Leiria');
 const weatherDescription = ref('');
 const temperature = ref('');
 const humidity = ref('');
-const free_spaces = ref(0);
+const freeSpaces = ref(0);
 const photo = ref("");
 const showVideoFeed = ref(true);
-
+const weatherIconClass = ref("")
+const weatherIcons = {
+  'Clear': 'bi bi-sun', 
+  'Rain': 'bi bi-cloud-rain',
+  'Clouds': 'bi bi-cloud',
+  'Snow': 'bi bi-snow'
+};
 let intervalId = null;
+let videoBuffer = [];
+const bufferSize = 30; 
+let frameIntervalId = null;
+
 
 const fetchWeather = async () => {
   const baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
@@ -27,9 +37,10 @@ const fetchWeather = async () => {
     const response = await fetch(`${baseUrl}?${params.toString()}`);
     if (response.ok) {
       const weatherData = await response.json();
-      weatherDescription.value = weatherData.weather[0].description;
+      weatherDescription.value = weatherData.weather[0].main;
       temperature.value = weatherData.main.temp;
       humidity.value = weatherData.main.humidity;
+      weatherIconClass.value = weatherIcons[weatherDescription.value] || 'bi bi-question';
     } else {
       console.error(`Error: Failed to retrieve weather data (HTTP ${response.status})`);
     }
@@ -59,8 +70,14 @@ const videoUrl = ref('http://10.0.0.6:5000/video_ipl');
 const socket = io('http://10.0.0.6:5000'); 
 
 socket.on('free_spaces', (data) => {
-  free_spaces.value = data.free_spaces
-  photo.value = 'data:image/jpeg;base64,' + data.image;
+  freeSpaces.value = data.free_spaces;
+  const base64Image = 'data:image/jpeg;base64,' + data.image;
+  if (videoBuffer.length < bufferSize) {
+    videoBuffer.push(base64Image);
+  } else {
+    videoBuffer.shift();
+    videoBuffer.push(base64Image);
+  }
 });
 
 const showCurrentPhoto = () => {
@@ -69,60 +86,93 @@ const showCurrentPhoto = () => {
 
 const showLive = () => {
   showVideoFeed.value = true;
+  startFrameInterval();
 };
+
+const startFrameInterval = () => {
+  if (!frameIntervalId) {
+    frameIntervalId = setInterval(() => {
+      if (videoBuffer.length > 0) {
+        photo.value = videoBuffer.shift();
+      }
+    }, 1000 / 30); 
+  }
+};
+
+const stopFrameInterval = () => {
+  if (frameIntervalId) {
+    clearInterval(frameIntervalId);
+    frameIntervalId = null;
+  }
+};
+
 </script>   
 <template>
-   <div>
-    <br>
-    <br>
-    <div class="d-flex justify-content-center">
-      <h1>Welcome User</h1>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <div class="card bg-dark text-gray">
+          <div class="card-body text-center">
+            <h3 class="card-title text-gray">Weather in {{ city }}</h3>
+            <div v-if="loading" class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <div v-else>
+              <div class="weather-description mb-2">
+                <span>{{ weatherDescription }}&nbsp;</span>
+                <i :class="weatherIconClass" class="ml-2"></i>
+              </div>
+              <p class="card-text">Temperature: {{ temperature }} °C</p>
+              <p class="card-text">Humidity: {{ humidity }}%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="card bg-dark text-gray">
+          <div class="card-body text-center">
+            <h3 class="card-title text-gray">Video</h3>
+            <p class="card-text">Free Spaces: {{ freeSpaces }}</p>
+            <button v-if="showVideoFeed" class="btn btn-secondary" @click="showCurrentPhoto" aria-label="Show Current Photo">Show Current Photo</button>
+            <button v-if="!showVideoFeed" class="btn btn-secondary" @click="showLive" aria-label="Show Live Feed">Show Live Feed</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="weather-info">
-      <h3>Weather in {{ city }}:</h3>
-      <h6>Description: {{ weatherDescription }}</h6>
-      <h6>Temperature: {{ temperature }} °C</h6>
-      <h6>Humidity: {{ humidity }}%</h6>
-    </div>
-    <br>
-    <div class="weather-info">
-      <h3>Live Feed</h3>
-      <h5>Free Spaces : {{ free_spaces }}</h5>
-      <button v-if="showVideoFeed" class="btn btn-secondary" @click="showCurrentPhoto">Show Current Photo</button>
-      <button v-if="!showVideoFeed" class="btn btn-secondary" @click="showLive">Show Live Feed</button>
-    </div>
-    <br>
     <div class="d-flex justify-content-center">
       <div v-if="showVideoFeed">
-        <img :src="videoUrl" alt="Video Stream" class="live-stream">
+        <img :src="videoUrl" alt="Live Stream" class="live-stream">
       </div>
       <div v-else>
         <img :src="photo" alt="Current Photo" class="live-stream">
       </div>
     </div>
   </div>
-  <br>
-  <br>
 </template>
 <style>
+body {
+  background-color: #121212; 
+  color: #c0c0c0; 
+}
+
 .form-select-bg-position {
   width: 250px;
 }
-.form-selectmultiple-bg-position{
-    width: 650px;
-    height: 150px;
+.form-selectmultiple-bg-position {
+  width: 650px;
+  height: 150px;
 }
-.move-input{
-    margin-right: 350px;
-    width: 300px;
+.move-input {
+  margin-right: 350px;
+  width: 300px;
 }
-.move-textarea{
-    width: 650px;
-    height: 200px;
+.move-textarea {
+  width: 650px;
+  height: 200px;
 }
-.algorithms{
-    display: flexbox;
-    flex-direction: row;
+.algorithms {
+  display: flexbox;
+  flex-direction: row;
 }
 .weather-info {
   text-align: center;
@@ -131,5 +181,26 @@ const showLive = () => {
 .live-stream {
   width: 640px;
   height: 480px;
+}
+.weather-description {
+  transition: all 0.3s ease;
+}
+.weather-description i {
+  margin-left: 5px;
+  transition: transform 0.3s ease;
+}
+.weather-description:hover i {
+  transform: scale(1.2);
+}
+.card {
+  background-color: #1e1e1e; /* Darker card background */
+  color: #c0c0c0; /* Gray text color */
+}
+.text-gray {
+  color: #c0c0c0;
+}
+.form-control.bg-dark {
+  background-color: #1e1e1e; 
+  color: #c0c0c0; 
 }
 </style>

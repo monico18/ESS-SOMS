@@ -173,7 +173,7 @@ def video_feed():
 
 @app.route('/video_ipl')
 def videos_ipl():
-    return Response(generate_video_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_video_frames(), mimetype='video/mp4')
 
 if __name__ == "__main__":
     #app.run(host='0.0.0.0', port=5000)

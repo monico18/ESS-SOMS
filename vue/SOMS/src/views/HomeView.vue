@@ -13,12 +13,13 @@ const clickMenuOption = () => {
 
 <template >
   <div class="about">
-    <h1>Welcome to HashKitty</h1>
-    <h3>Your favorite password analyzer</h3>
+    <br><br>
+    <h1>Welcome to SOMS</h1>
+    <h3>Your very own Smart Occupancy Manager System</h3>
     <br>
     <br>
     <router-link class="nav-link btn btn-outline-secondary btn-large" :to="{ name: 'Login' }" :class="{ active: $route.name === 'Login' }" @click="clickMenuOption">
-            Get Started Now !!
+            Login
     </router-link>
   </div>
   <div class="centered-text">
