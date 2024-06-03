@@ -125,6 +125,8 @@ def generate_video_frames():
     shapes = load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl')
     previous_free_spaces = 0
     frame_counter = 0
+    frame_skip = 50  
+
     while True:
         ret, img = cap.read()
         if not ret:
@@ -133,6 +135,10 @@ def generate_video_frames():
             cap.release()
             cap = cv2.VideoCapture(f"./img/{videos[video_index]}")
             shapes = load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl')
+            continue
+
+        frame_counter += 1
+        if frame_counter % frame_skip != 0:
             continue
 
         logging.debug("Processing video frame")
@@ -156,10 +162,6 @@ def generate_video_frames():
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        
-        frame_counter += 1
-        if frame_counter > 500000: 
-            break
 
     cap.release()
     cv2.destroyAllWindows()
