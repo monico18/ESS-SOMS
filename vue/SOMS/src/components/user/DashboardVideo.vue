@@ -11,7 +11,7 @@ const temperature = ref('');
 const humidity = ref('');
 const free_spaces = ref(0);
 const photo = ref("");
-const showLiveFeed = ref(true);
+const showVideoFeed = ref(true);
 
 let intervalId = null;
 
@@ -55,7 +55,7 @@ const stopFetching = () => {
 onMounted(startFetching);
 onUnmounted(stopFetching);
 
-const videoUrl = ref('http://10.0.0.6:5000/video_feed');
+const videoUrl = ref('http://10.0.0.6:5000/video_ipl');
 const socket = io('http://10.0.0.6:5000'); 
 
 socket.on('free_spaces', (data) => {
@@ -64,11 +64,11 @@ socket.on('free_spaces', (data) => {
 });
 
 const showCurrentPhoto = () => {
-  showLiveFeed.value = false;
+  showVideoFeed.value = false;
 };
 
 const showLive = () => {
-  showLiveFeed.value = true;
+  showVideoFeed.value = true;
 };
 </script>   
 <template>
@@ -88,13 +88,13 @@ const showLive = () => {
     <div class="weather-info">
       <h3>Live Feed</h3>
       <h5>Free Spaces : {{ free_spaces }}</h5>
-      <button v-if="showLiveFeed" class="btn btn-secondary" @click="showCurrentPhoto">Show Current Photo</button>
-      <button v-if="!showLiveFeed" class="btn btn-secondary" @click="showLive">Show Live Feed</button>
+      <button v-if="showVideoFeed" class="btn btn-secondary" @click="showCurrentPhoto">Show Current Photo</button>
+      <button v-if="!showVideoFeed" class="btn btn-secondary" @click="showLive">Show Live Feed</button>
     </div>
     <br>
     <div class="d-flex justify-content-center">
-      <div v-if="showLiveFeed">
-        <img :src="videoUrl" alt="Live Stream" class="live-stream">
+      <div v-if="showVideoFeed">
+        <img :src="videoUrl" alt="Video Stream" class="live-stream">
       </div>
       <div v-else>
         <img :src="photo" alt="Current Photo" class="live-stream">

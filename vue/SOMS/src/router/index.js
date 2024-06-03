@@ -4,6 +4,7 @@ import HomeView from '@/views/HomeView.vue'
 import Register from '@/components/auth/Register.vue'
 import Login from '@/components/auth/Login.vue'
 import Dashboard from '@/components/user/Dashboard.vue'
+import DashboardVideo from '@/components/user/DashboardVideo.vue'
 import AdminDashboard from '@/components/admin/AdminDashboard.vue'
 import Profile from '@/components/user/Profile.vue'
 
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/dashboard',
       name: 'Dashboard',
       component: Dashboard
+    },
+    {
+      path:'/dashboardvideo',
+      name: 'DashboardVideo',
+      component: DashboardVideo
     },
     {
       path: '/admin',

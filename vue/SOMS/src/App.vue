@@ -44,7 +44,7 @@ const clickMenuOption = () => {
           </router-link>
         </li>
         <li class="nav-item"  v-show="userStore.user && userStore.user.type == 'user'">
-          <router-link style="margin-left: 0.5rem;" class="nav-link btn btn-secondary btn-lg" :to="{ name: 'Dashboard' }" :class="{ active: $route.name === 'Dashboard' }">
+          <router-link style="margin-left: 0.5rem;" class="nav-link btn btn-secondary btn-lg" :to="{ name: 'DashboardVideo' }" :class="{ active: $route.name === 'DashboardVideo' }">
             Dashboard Video
           </router-link>
         </li>
