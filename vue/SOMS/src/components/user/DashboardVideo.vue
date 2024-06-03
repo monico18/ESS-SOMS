@@ -111,7 +111,7 @@ const stopFrameInterval = () => {
   <div class="container mt-5">
     <div class="row">
       <div class="col-md-6 mb-3">
-        <div class="card bg-dark text-gray">
+        <div class="card bg-dark text-gray same-height">
           <div class="card-body text-center">
             <h3 class="card-title text-gray">Weather in {{ city }}</h3>
             <div v-if="loading" class="spinner-border text-primary" role="status">
@@ -129,7 +129,7 @@ const stopFrameInterval = () => {
         </div>
       </div>
       <div class="col-md-6 mb-3">
-        <div class="card bg-dark text-gray">
+        <div class="card bg-dark text-gray same-height">
           <div class="card-body text-center">
             <h3 class="card-title text-gray">Video</h3>
             <p class="card-text">Free Spaces: {{ freeSpaces }}</p>
@@ -202,5 +202,8 @@ body {
 .form-control.bg-dark {
   background-color: #1e1e1e; 
   color: #c0c0c0; 
+}
+.same-height {
+  height: 100%;
 }
 </style>
