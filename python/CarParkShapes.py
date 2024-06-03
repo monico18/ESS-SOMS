@@ -57,39 +57,43 @@ def connect_points(event, x, y, flags, param):
     elif event == cv2.EVENT_LBUTTONUP:
         drawing = False
 
-def switch_video(cap):
-    global video_index, shapes, shape_counter
-    with open(f'shapes_{videos[video_index].split(".")[0]}.pkl', 'wb') as f:
-        pickle.dump(shapes, f)
+# def switch_video(cap):
+#     global video_index, shapes, shape_counter
+#     with open(f'shapes_{videos[video_index].split(".")[0]}.pkl', 'wb') as f:
+#         pickle.dump(shapes, f)
     
-    video_index = (video_index + 1) % len(videos)
-    cap.release()
-    cap.open(f"./img/{videos[video_index]}")
+#     video_index = (video_index + 1) % len(videos)
+#     cap.release()
+#     cap.open(f"./img/{videos[video_index]}")
     
-    shapes = load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl')
-    shape_counter = len(shapes)
+#     shapes = load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl')
+#     shape_counter = len(shapes)
     
-    cv2.waitKey(100)
+#     cv2.waitKey(100)
     
 # Main function
 def main():
     global img
 
-    cap = cv2.VideoCapture(f"./img/{videos[video_index]}")
-    shapes.extend(load_shapes(f'shapes_{videos[video_index].split(".")[0]}.pkl'))
+    cap = cv2.VideoCapture(f"./img/{videos[4]}")
+    shapes.extend(load_shapes(f'shapes_{videos[4].split(".")[0]}.pkl'))
     cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Image", 1280, 720)
     cv2.setMouseCallback("Image", connect_points)
 
     while True:
         ret, frame = cap.read()
         if not ret:
-            switch_video(cap)
-            continue
+            cap.release()
+            cap = cv2.VideoCapture(f"./img/{videos[4]}")
+            ret, frame = cap.read()
+            if not ret:
+                break 
 
         img = frame.copy()
         
         height, width = frame.shape[:2]
-        cv2.resizeWindow("Image", width, height)
+        cv2.resizeWindow("Image", 1280, 720)
 
         for shape in shapes:
             points = shape['points']
@@ -103,11 +107,11 @@ def main():
 
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
-            with open(f'shapes_{videos[video_index].split(".")[0]}.pkl', 'wb') as f:
+            with open(f'shapes_{videos[4].split(".")[0]}.pkl', 'wb') as f:
                 pickle.dump(shapes, f)
             break
         elif key == ord('s'):
-            with open(f'shapes_{videos[video_index].split(".")[0]}.pkl', 'wb') as f:
+            with open(f'shapes_{videos[4].split(".")[0]}.pkl', 'wb') as f:
                 pickle.dump(shapes, f)
 
     cap.release()
