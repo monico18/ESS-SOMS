@@ -17,7 +17,8 @@ const weatherIcons = {
   'Clear': 'bi bi-sun', 
   'Rain': 'bi bi-cloud-rain',
   'Clouds': 'bi bi-cloud',
-  'Snow': 'bi bi-snow'
+  'Snow': 'bi bi-snow',
+  'Mist': 'bi bi-cloud'
 };
 let intervalId = null;
 let videoBuffer = [];
@@ -66,18 +67,23 @@ const stopFetching = () => {
 onMounted(startFetching);
 onUnmounted(stopFetching);
 
-const videoUrl = ref('http://10.0.0.6:5000/video_ipl');
-const socket = io('http://10.0.0.6:5000'); 
+const videoUrl = ref('http://10.0.0.5:5000/video_ipl');
+const socket = io('http://10.0.0.5:5000'); 
+
+socket.on('free_spaces_live', (data) => {
+  freeSpaces.value = data.free_spaces;
+  const base64Image_live = 'data:image/jpeg;base64,' + data.image;
+  if (videoBuffer.length < bufferSize) {
+    videoBuffer.push(base64Image_live);
+  } else {
+    videoBuffer.shift();
+    videoBuffer.push(base64Image_live);
+  }
+});
 
 socket.on('free_spaces', (data) => {
   freeSpaces.value = data.free_spaces;
-  const base64Image = 'data:image/jpeg;base64,' + data.image;
-  if (videoBuffer.length < bufferSize) {
-    videoBuffer.push(base64Image);
-  } else {
-    videoBuffer.shift();
-    videoBuffer.push(base64Image);
-  }
+  photo.value = 'data:image/jpeg;base64,' + data.image;
 });
 
 const showCurrentPhoto = () => {
@@ -179,8 +185,8 @@ body {
   margin-top: 20px;
 }
 .live-stream {
-  width: 640px;
-  height: 480px;
+  width: 1080px;
+  height: 560px;
 }
 .weather-description {
   transition: all 0.3s ease;

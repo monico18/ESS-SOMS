@@ -61,8 +61,11 @@ def connect_points(event, x, y, flags, param):
 def main():
     global img
 
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    cv2.namedWindow("Image")
+    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Image", 1280, 720)
     cv2.setMouseCallback("Image", connect_points)
 
     while True:
@@ -86,7 +89,7 @@ def main():
         if key == ord('q'):
             break
         elif key == ord('s'):
-            with open('shapesParkBDC.pkl', 'wb') as f:
+            with open('shapesParkBCD.pkl', 'wb') as f:
                 pickle.dump(shapes, f)
 
     cap.release()

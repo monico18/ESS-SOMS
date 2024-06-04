@@ -18,7 +18,7 @@ def load_shapes(file_path):
     except FileNotFoundError:
         return []
 
-shapes = load_shapes('shapesParkVideo.pkl')
+shapes = load_shapes('shapes_Video4.pkl')
 
 # Function to calculate the distance between two points
 def distance(point1, point2):
@@ -62,7 +62,7 @@ def main():
     global img
 
     # Open video file
-    cap = cv2.VideoCapture('img/CarParkDocentes.mp4') 
+    cap = cv2.VideoCapture('img/Video4.mp4') 
     if not cap.isOpened():
         print("Error: Could not open video")
         return
@@ -94,7 +94,7 @@ def main():
         if key == ord('q'):
             break
         elif key == ord('s'):
-            with open('shapesParkVideo.pkl', 'wb') as f:
+            with open('shapes_Video4.pkl', 'wb') as f:
                 pickle.dump(shapes, f)
 
     cap.release()

@@ -11,7 +11,8 @@ const weatherIcons = {
   'Clear': 'bi bi-sun', 
   'Rain': 'bi bi-cloud-rain',
   'Clouds': 'bi bi-cloud',
-  'Snow': 'bi bi-snow'
+  'Snow': 'bi bi-snow',
+  'Mist': 'bi bi-cloud'
 };
 const temperature = ref('');
 const humidity = ref('');
@@ -65,8 +66,8 @@ const stopFetching = () => {
 onMounted(startFetching);
 onUnmounted(stopFetching);
 
-const videoUrl = ref('http://10.0.0.6:5000/video_feed');
-const socket = io('http://10.0.0.6:5000'); 
+const videoUrl = ref('http://10.0.0.5:5000/video_feed');
+const socket = io('http://10.0.0.5:5000'); 
 
 socket.on('free_spaces', (data) => {
   free_spaces.value = data.free_spaces
@@ -153,8 +154,8 @@ body {
   margin-top: 20px;
 }
 .live-stream {
-  width: 640px;
-  height: 480px;
+  width: 820px;
+  height: 560px;
 }
 .weather-description {
   transition: all 0.3s ease;

@@ -31,7 +31,7 @@ def draw_shapes(img, shapes):
     logging.debug("Drawing shapes on image")
     for shape in shapes:
         points = shape['points']
-        color = (0, 0, 255) if shape.get('count', 0) > 1400 else (0, 255, 0)
+        color = (0, 0, 255) if shape.get('count', 0) > 1200 else (0, 255, 0)
         thickness = 2
         for i in range(1, len(points)):
             cv2.line(img, points[i - 1], points[i], color, thickness)
@@ -52,11 +52,11 @@ def display_count_on_image(img, shapes):
         x, y, w, h = cv2.boundingRect(np.array(shape['points']))
         count = shape['count']
         text_position = (x + (w - 50) // 2, y + h + 25)
-        text_color = (0, 0, 255) if count > 1400 else (0, 255, 0)
+        text_color = (0, 0, 255) if count > 1200 else (0, 255, 0)
         cv2.putText(img, str(count), text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 1)
     logging.debug("Count display completed")
 
-def count_free_spaces(shapes, threshold=1400):
+def count_free_spaces(shapes, threshold=1200):
     logging.debug("Counting free spaces")
     free_spaces = sum(1 for shape in shapes if shape.get('count', 0) < threshold)
     return free_spaces
@@ -70,13 +70,13 @@ def display_free_spaces_count(img, free_spaces):
 
 def main():
     logging.info("Starting main function")
-    video_path = 'img/CarParkDocentes.mp4'  # Path to your video file
+    video_path = 'img/Video4.mp4'  # Path to your video file
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         logging.error("Error: Could not open video file")
         return
     
-    shapes = load_shapes('shapesParkVideo.pkl')
+    shapes = load_shapes('shapes_Video4.pkl')
 
     while True:
         success, img = cap.read()
